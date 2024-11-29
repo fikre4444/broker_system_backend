@@ -43,6 +43,8 @@ public class User implements UserDetails {
 
   private String email;
 
+  private String profilePicUrl;
+
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
 
