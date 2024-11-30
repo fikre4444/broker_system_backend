@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,53 +63,65 @@ public class RegisterController {
   @Autowired
   private UserRepository userProfileRepository;
 
-  @PostMapping("/upload")
-  public ResponseEntity<String> uploadProfile(
-      @RequestParam("image") MultipartFile file) {
-
-    // Validate file
-    if (file.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Image file is required");
-    }
-
+  @PostMapping("/register-with-profile-pic")
+  public ResponseEntity<?> registerWithProfilePic(@RequestPart RegisterDto registerDto,
+      @RequestPart MultipartFile file) {
     try {
-      // Create upload directory if it doesn't exist
-      Path dirPath = Paths.get(uploadDir);
-      if (!Files.exists(dirPath)) {
-        Files.createDirectories(dirPath);
-      }
+      User user = registerService.registerWithProfilePic(registerDto, file);
+      // ##TODO might fix later
+      return ResponseEntity.ok(user);
+    } catch (Exception e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 
-      // Save the file
-      String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-      Path filePath = dirPath.resolve(fileName);
-      file.transferTo(filePath.toFile());
-
-      // Save the record to the database
-      // User userProfile = new User();
-      // userProfile.setName(name);
-      // userProfile.setImageUrl(filePath.toString());
-      // userProfileRepository.save(userProfile);
-
-      User user = User.builder()
-          .firstName("Jacob")
-          .lastName("Issiah")
-          .profilePicUrl(filePath.toString())
-          .username("jacob11")
-          .email("jacob2@gmail.com")
-          .gender(GenderEnum.MALE)
-          .password("ababye")
-          .role(RoleEnum.ROLE_ADMINISTRATOR)
-          .created_at(LocalDateTime.now())
-          .build();
-      userProfileRepository.save(user);
-
-      return ResponseEntity.ok("Image uploaded successfully: " + fileName);
-
-    } catch (IOException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image");
     }
   }
+
+  // @PostMapping("/upload")
+  // public ResponseEntity<String> uploadProfile(@RequestPart RegisterDto
+  // registerDto,
+  // @RequestPart MultipartFile file) {
+
+  // System.out.println("the gotten dto is " + registerDto);
+  // // Validate file
+  // if (file.isEmpty()) {
+  // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Image file is
+  // required");
+  // }
+
+  // try {
+  // // Create upload directory if it doesn't exist
+  // Path dirPath = Paths.get(uploadDir);
+  // if (!Files.exists(dirPath)) {
+  // Files.createDirectories(dirPath);
+  // }
+
+  // // Save the file
+  // String fileName = System.currentTimeMillis() + "_" +
+  // file.getOriginalFilename();
+  // Path filePath = dirPath.resolve(fileName);
+  // file.transferTo(filePath.toFile());
+
+  // User user = User.builder()
+  // .firstName("Jacob")
+  // .lastName("Issiah")
+  // .profilePicUrl(filePath.toString())
+  // .username("jacob11")
+  // .email("jacob2@gmail.com")
+  // .gender(GenderEnum.MALE)
+  // .password("ababye")
+  // .role(RoleEnum.ROLE_ADMINISTRATOR)
+  // .created_at(LocalDateTime.now())
+  // .build();
+  // userProfileRepository.save(user);
+
+  // return ResponseEntity.ok("Image uploaded successfully: " + fileName);
+
+  // } catch (IOException e) {
+  // e.printStackTrace();
+  // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed
+  // to upload image");
+  // }
+  // }
 
   @GetMapping("/image/{filename}")
   public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
