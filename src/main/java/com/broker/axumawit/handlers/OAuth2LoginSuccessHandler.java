@@ -41,6 +41,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
   @Value("${app.upload.dir}")
   private String uploadDir;
 
+  @Value("${after.login.redirect}")
+  private String afterLoginRedirect;
+
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException {
@@ -73,12 +76,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     // Add logic for JWT token generation
     String token = jwtService.generateToken(user.getUsername());
     System.out.println("the token is " + token);
-
-    response.sendRedirect("http://localhost:5173/handleRedirectLogin?token=" + token);
+    // TODO need a fix for this redirect stuff
+    // here you use afterLoginRedirect variable to test it and then commit
+    response.sendRedirect(afterLoginRedirect + "?token=" + token);
     response.setContentType("application/json");
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write("{\"token\":\"" + token + "\"}");
     response.getWriter().flush();
 
   }
+
 }
