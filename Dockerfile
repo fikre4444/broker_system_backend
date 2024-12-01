@@ -14,4 +14,4 @@ WORKDIR /app
 COPY .env /app/.env
 COPY --from=build /app/target/axumawit-0.0.1-SNAPSHOT.jar ./axumawit-aws.jar
 EXPOSE 8080
-CMD ["java", "-jar", "demo-aws.jar"]
+CMD ["java", "-jar", "axumawit-aws.jar"]
