@@ -39,7 +39,18 @@ public class UserController {
 
   @GetMapping("/image/{filename}")
   public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
-    byte[] result = userService.getImage(filename);
+    // byte[] result = userService.getImage(filename);
+    byte[] result = userService.getMyProfilePic();
+    if (result == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(result);
+  }
+
+  @GetMapping("/get-my-profile-pic")
+  public ResponseEntity<byte[]> getMyProfilePic() {
+    // byte[] result = userService.getImage(filename);
+    byte[] result = userService.getMyProfilePic();
     if (result == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }

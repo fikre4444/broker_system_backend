@@ -28,12 +28,26 @@ public class UserService {
     if (user == null)
       return null; // if there is not authenticated user send null (for readabilty)
     user.setPassword(null);
+    user.setProfilePicUrl(null);
     return user;
   }
 
   public byte[] getImage(String filename) {
-    // you need to make sure throught jwt that the person who requested this image
-    // is the correct person
+    try {
+      Path imagePath = Paths.get(uploadDir).resolve(filename);
+      byte[] imageBytes = Files.readAllBytes(imagePath);
+      return imageBytes;
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.out.println("Thre was a problem while fetching that thing iamge");
+      return null;
+    }
+  }
+
+  public byte[] getMyProfilePic() {
+    User user = authService.getAuthenticatedUser();
+    int lastIndexOfSlash = user.getProfilePicUrl().lastIndexOf("\\");
+    String filename = user.getProfilePicUrl().substring(lastIndexOfSlash + 1);
     try {
       Path imagePath = Paths.get(uploadDir).resolve(filename);
       byte[] imageBytes = Files.readAllBytes(imagePath);

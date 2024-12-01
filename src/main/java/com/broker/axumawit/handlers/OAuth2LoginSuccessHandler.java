@@ -1,6 +1,7 @@
 package com.broker.axumawit.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,9 @@ import com.broker.axumawit.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Component
@@ -30,6 +34,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @Value("${app.upload.dir}")
+  private String uploadDir;
+
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) throws IOException {
@@ -41,7 +48,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     // Check if the user exists in the database
     User user = userRepository.findByEmail(email).orElse(null);
-
+    // TODO change it to call registerService later
     if (user == null) {
       // If the user doesn't exist, create and save a new user
       System.out.println("\n\n\nCreating the user since they don't exist!");
@@ -54,6 +61,20 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
           .role(RoleEnum.ROLE_USER) // Default role
           .created_at(LocalDateTime.now())
           .build();
+      try {
+        // Create upload directory if it doesn't exist
+        Path dirPath = Paths.get(uploadDir);
+        if (!Files.exists(dirPath)) {
+          Files.createDirectories(dirPath);
+        }
+
+        // Save the file
+        String fileName = "default.jpg";
+        Path filePath = dirPath.resolve(fileName);
+        user.setProfilePicUrl(filePath.toString());
+      } catch (IOException ex) {
+        System.out.println("something happened lol");
+      }
       userRepository.save(user);
     }
 

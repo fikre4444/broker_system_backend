@@ -44,6 +44,21 @@ public class RegisterService {
         .role(RoleEnum.ROLE_USER)
         .created_at(LocalDateTime.now())
         .build();
+
+    try {
+      // Create upload directory if it doesn't exist
+      Path dirPath = Paths.get(uploadDir);
+      if (!Files.exists(dirPath)) {
+        Files.createDirectories(dirPath);
+      }
+
+      // Save the file
+      String fileName = "default.jpg";
+      Path filePath = dirPath.resolve(fileName);
+      user.setProfilePicUrl(filePath.toString());
+    } catch (IOException ex) {
+      System.out.println("something happened lol");
+    }
     User savedUser = userRepository.save(user);
     // ## TODO might need to return a jwt for this
     return Map.of("result", "success", "message", "Successfully Registered!", "registeredUser", savedUser);
@@ -70,6 +85,23 @@ public class RegisterService {
 
   public String uploadProfilePic(MultipartFile file) {
     // don't forget that this doesn't have the proper url
+    if (file == null) {
+      try {
+        // Create upload directory if it doesn't exist
+        Path dirPath = Paths.get(uploadDir);
+        if (!Files.exists(dirPath)) {
+          Files.createDirectories(dirPath);
+        }
+
+        // Save the file
+        String fileName = "default.jpg";
+        Path filePath = dirPath.resolve(fileName);
+        return filePath.toString();
+      } catch (IOException ex) {
+        System.out.println("something happened lol");
+        return null;
+      }
+    }
     String defaultProfilePic = "some_default_url_that_is_default_profile_pic";
     if (file.isEmpty()) {
       return defaultProfilePic;

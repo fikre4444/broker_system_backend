@@ -65,12 +65,13 @@ public class RegisterController {
 
   @PostMapping("/register-with-profile-pic")
   public ResponseEntity<?> registerWithProfilePic(@RequestPart RegisterDto registerDto,
-      @RequestPart MultipartFile file) {
+      @RequestPart(name = "file", value = "file", required = false) MultipartFile file) {
     try {
       User user = registerService.registerWithProfilePic(registerDto, file);
       // ##TODO might fix later
       return ResponseEntity.ok(user);
     } catch (Exception e) {
+      System.out.println("some shit happened");
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
@@ -123,15 +124,16 @@ public class RegisterController {
   // }
   // }
 
-  @GetMapping("/image/{filename}")
-  public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
-    try {
-      Path imagePath = Paths.get(uploadDir).resolve(filename);
-      byte[] imageBytes = Files.readAllBytes(imagePath);
-      return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageBytes);
-    } catch (IOException e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-  }
+  // @GetMapping("/image/{filename}")
+  // public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
+  // try {
+  // Path imagePath = Paths.get(uploadDir).resolve(filename);
+  // byte[] imageBytes = Files.readAllBytes(imagePath);
+  // return
+  // ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageBytes);
+  // } catch (IOException e) {
+  // return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+  // }
+  // }
 
 }
