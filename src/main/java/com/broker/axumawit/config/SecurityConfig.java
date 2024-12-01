@@ -36,16 +36,31 @@ public class SecurityConfig {
   @Autowired
   private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+  // @Bean
+  // public WebMvcConfigurer corsConfigurer() {
+  // return new WebMvcConfigurer() {
+  // @Override
+  // public void addCorsMappings(CorsRegistry registry) {
+  // registry.addMapping("/**") // Allow all paths
+  // .allowedOrigins("http://localhost:5173") // Allow frontend origin
+  // .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific
+  // HTTP methods
+  // .allowedHeaders("*") // Allow all headers
+  // .allowCredentials(true); // Allow crede
+  // }
+  // };
+  // }
+
   @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Allow all paths
-            .allowedOrigins("http://localhost:5173") // Allow frontend origin
+            .allowedOrigins("*") // Allow all origins
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific HTTP methods
             .allowedHeaders("*") // Allow all headers
-            .allowCredentials(true); // Allow crede
+            .allowCredentials(false); // Disable credentials to comply with wildcard origins
       }
     };
   }

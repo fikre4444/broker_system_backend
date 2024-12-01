@@ -33,18 +33,8 @@ public class RegisterService {
   @Value("${app.upload.dir}")
   private String uploadDir;
 
-  public Map<String, Object> registerUser(RegisterDto registerDto) {
-    User user = User.builder()
-        .firstName(registerDto.getFirstName())
-        .lastName(registerDto.getLastName())
-        .username(registerDto.getUsername())
-        .email(registerDto.getEmail())
-        .gender(registerDto.getGender())
-        .password(passwordEncoder.encode(registerDto.getPassword()))
-        .role(RoleEnum.ROLE_USER)
-        .created_at(LocalDateTime.now())
-        .build();
-
+  public String getDefaultProfilePicUrl() {
+    // gets the default profile pic url for a user that didn't submit a profile pic
     try {
       // Create upload directory if it doesn't exist
       Path dirPath = Paths.get(uploadDir);
@@ -55,17 +45,34 @@ public class RegisterService {
       // Save the file
       String fileName = "default.jpg";
       Path filePath = dirPath.resolve(fileName);
-      user.setProfilePicUrl(filePath.toString());
+      return filePath.toString();
     } catch (IOException ex) {
       System.out.println("something happened lol");
+      return null;
     }
+  }
+
+  public Map<String, Object> registerUser(RegisterDto registerDto) {
+    // register through normal json object
+    User user = User.builder()
+        .firstName(registerDto.getFirstName())
+        .lastName(registerDto.getLastName())
+        .username(registerDto.getUsername())
+        .email(registerDto.getEmail())
+        .gender(registerDto.getGender())
+        .password(passwordEncoder.encode(registerDto.getPassword()))
+        .role(RoleEnum.ROLE_USER)
+        .created_at(LocalDateTime.now())
+        .build();
+    String profilePicUrl = getDefaultProfilePicUrl();
+    user.setProfilePicUrl(profilePicUrl);
     User savedUser = userRepository.save(user);
     // ## TODO might need to return a jwt for this
     return Map.of("result", "success", "message", "Successfully Registered!", "registeredUser", savedUser);
   }
 
   public User registerWithProfilePic(RegisterDto registerDto, MultipartFile file) {
-    // might need to check before we save them
+    // register through form data and image
     User user = User.builder()
         .firstName(registerDto.getFirstName())
         .lastName(registerDto.getLastName())
@@ -84,27 +91,9 @@ public class RegisterService {
   }
 
   public String uploadProfilePic(MultipartFile file) {
-    // don't forget that this doesn't have the proper url
-    if (file == null) {
-      try {
-        // Create upload directory if it doesn't exist
-        Path dirPath = Paths.get(uploadDir);
-        if (!Files.exists(dirPath)) {
-          Files.createDirectories(dirPath);
-        }
-
-        // Save the file
-        String fileName = "default.jpg";
-        Path filePath = dirPath.resolve(fileName);
-        return filePath.toString();
-      } catch (IOException ex) {
-        System.out.println("something happened lol");
-        return null;
-      }
-    }
-    String defaultProfilePic = "some_default_url_that_is_default_profile_pic";
-    if (file.isEmpty()) {
-      return defaultProfilePic;
+    // uploads profile pic or sets the default if an error occurs
+    if (file == null || file.isEmpty()) {
+      return getDefaultProfilePicUrl();
     }
 
     try {
@@ -123,7 +112,7 @@ public class RegisterService {
     } catch (IOException ex) {
       ex.printStackTrace();
       System.out.println("An error occured while uploading the image changing to default profilepic");
-      return defaultProfilePic;
+      return getDefaultProfilePicUrl();
     }
   }
 

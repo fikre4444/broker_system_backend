@@ -13,6 +13,7 @@ import com.broker.axumawit.domain.User;
 import com.broker.axumawit.enums.RoleEnum;
 import com.broker.axumawit.repository.UserRepository;
 import com.broker.axumawit.service.JwtService;
+import com.broker.axumawit.service.RegisterService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +31,9 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
   @Autowired
   private UserRepository userRepository; // To retrieve user details
+
+  @Autowired
+  private RegisterService registerService;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -52,6 +56,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     if (user == null) {
       // If the user doesn't exist, create and save a new user
       System.out.println("\n\n\nCreating the user since they don't exist!");
+
       user = User.builder()
           .email(email)
           .firstName(name.split(" ")[0]) // Assuming first name is the first part of the name
@@ -61,20 +66,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
           .role(RoleEnum.ROLE_USER) // Default role
           .created_at(LocalDateTime.now())
           .build();
-      try {
-        // Create upload directory if it doesn't exist
-        Path dirPath = Paths.get(uploadDir);
-        if (!Files.exists(dirPath)) {
-          Files.createDirectories(dirPath);
-        }
-
-        // Save the file
-        String fileName = "default.jpg";
-        Path filePath = dirPath.resolve(fileName);
-        user.setProfilePicUrl(filePath.toString());
-      } catch (IOException ex) {
-        System.out.println("something happened lol");
-      }
+      user.setProfilePicUrl(registerService.getDefaultProfilePicUrl());
       userRepository.save(user);
     }
 
