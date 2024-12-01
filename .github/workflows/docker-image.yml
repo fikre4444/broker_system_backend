@@ -18,6 +18,9 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+        
+    - name: Write .env File from Secrets
+      run: echo "${{ secrets.ENV_FILE }}" > .env
 
     - name: Build Docker Image
       run: docker buildx build --platform linux/amd64 -t fiknick123/axumawit-demo:1.0 .
