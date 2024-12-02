@@ -14,6 +14,7 @@ import com.broker.axumawit.enums.RoleEnum;
 import com.broker.axumawit.repository.UserRepository;
 import com.broker.axumawit.service.JwtService;
 import com.broker.axumawit.service.RegisterService;
+import com.broker.axumawit.service.storage.StorageService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,13 +34,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
   private UserRepository userRepository; // To retrieve user details
 
   @Autowired
-  private RegisterService registerService;
-
-  @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @Value("${app.upload.dir}")
-  private String uploadDir;
+  @Autowired
+  private StorageService storageService;
 
   @Value("${after.login.redirect}")
   private String afterLoginRedirect;
@@ -69,7 +67,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
           .role(RoleEnum.ROLE_USER) // Default role
           .created_at(LocalDateTime.now())
           .build();
-      user.setProfilePicUrl(registerService.getDefaultProfilePicUrl());
+      user.setProfilePicUrl(storageService.getDefaultProfilePicUrl());
       userRepository.save(user);
     }
 

@@ -20,6 +20,7 @@ import com.broker.axumawit.dto.RegisterDto;
 import com.broker.axumawit.enums.GenderEnum;
 import com.broker.axumawit.enums.RoleEnum;
 import com.broker.axumawit.repository.UserRepository;
+import com.broker.axumawit.service.storage.StorageService;
 
 @Service
 public class RegisterService {
@@ -30,27 +31,8 @@ public class RegisterService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  @Value("${app.upload.dir}")
-  private String uploadDir;
-
-  public String getDefaultProfilePicUrl() {
-    // gets the default profile pic url for a user that didn't submit a profile pic
-    try {
-      // Create upload directory if it doesn't exist
-      Path dirPath = Paths.get(uploadDir);
-      if (!Files.exists(dirPath)) {
-        Files.createDirectories(dirPath);
-      }
-
-      // Save the file
-      String fileName = "default.jpg";
-      Path filePath = dirPath.resolve(fileName);
-      return filePath.toString();
-    } catch (IOException ex) {
-      System.out.println("something happened lol");
-      return null;
-    }
-  }
+  @Autowired
+  StorageService storageService;
 
   public Map<String, Object> registerUser(RegisterDto registerDto) {
     // register through normal json object
@@ -64,7 +46,7 @@ public class RegisterService {
         .role(RoleEnum.ROLE_USER)
         .created_at(LocalDateTime.now())
         .build();
-    String profilePicUrl = getDefaultProfilePicUrl();
+    String profilePicUrl = storageService.getDefaultProfilePicUrl();
     user.setProfilePicUrl(profilePicUrl);
     User savedUser = userRepository.save(user);
     // ## TODO might need to return a jwt for this
@@ -83,37 +65,11 @@ public class RegisterService {
         .role(RoleEnum.ROLE_USER)
         .created_at(LocalDateTime.now())
         .build();
-    String profilePicUrl = uploadProfilePic(file);
+    String profilePicUrl = storageService.uploadProfilePic(file);
     user.setProfilePicUrl(profilePicUrl);
     System.out.println(("the profile pic url is " + profilePicUrl));
     User savedUser = userRepository.save(user);
     return savedUser;
-  }
-
-  public String uploadProfilePic(MultipartFile file) {
-    // uploads profile pic or sets the default if an error occurs
-    if (file == null || file.isEmpty()) {
-      return getDefaultProfilePicUrl();
-    }
-
-    try {
-      // Create upload directory if it doesn't exist
-      Path dirPath = Paths.get(uploadDir);
-      if (!Files.exists(dirPath)) {
-        Files.createDirectories(dirPath);
-      }
-
-      // Save the file
-      String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-      Path filePath = dirPath.resolve(fileName);
-      file.transferTo(filePath.toFile());
-
-      return filePath.toString();
-    } catch (IOException ex) {
-      ex.printStackTrace();
-      System.out.println("An error occured while uploading the image changing to default profilepic");
-      return getDefaultProfilePicUrl();
-    }
   }
 
   // Just temporary need to delete later
