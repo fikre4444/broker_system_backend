@@ -76,4 +76,10 @@ public class LocalStorageService implements StorageService {
     }
   }
 
+  @Override
+  public String getNameFromUrl(String url) {
+    int lastIndexOfSlash = url.lastIndexOf("\\");
+    return url.substring(lastIndexOfSlash + 1);
+  }
+
 }

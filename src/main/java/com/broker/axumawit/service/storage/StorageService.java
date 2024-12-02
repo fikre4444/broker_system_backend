@@ -10,4 +10,6 @@ public interface StorageService {
 
   byte[] getImage(String fileName);
 
+  String getNameFromUrl(String url);
+
 }

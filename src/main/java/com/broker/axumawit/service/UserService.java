@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.broker.axumawit.domain.User;
-import com.broker.axumawit.service.storage.LocalStorageService;
+import com.broker.axumawit.service.storage.StorageService;
 
 @Service
 public class UserService {
@@ -22,7 +22,7 @@ public class UserService {
   private AuthService authService;
 
   @Autowired
-  private LocalStorageService localStorageService;
+  private StorageService storageService;
 
   public User getProfile() {
     User user = authService.getAuthenticatedUser();
@@ -35,9 +35,8 @@ public class UserService {
 
   public byte[] getMyProfilePic() {
     User user = authService.getAuthenticatedUser();
-    int lastIndexOfSlash = user.getProfilePicUrl().lastIndexOf("\\");
-    String filename = user.getProfilePicUrl().substring(lastIndexOfSlash + 1);
-    return localStorageService.getImage(filename);
+    String filename = storageService.getNameFromUrl(user.getProfilePicUrl());
+    return storageService.getImage(filename);
   }
 
 }
