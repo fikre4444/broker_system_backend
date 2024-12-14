@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.broker.axumawit.domain.User;
+import com.broker.axumawit.service.RegisterService;
 import com.broker.axumawit.service.UserService;
 
 @RestController
@@ -25,7 +26,7 @@ public class UserController {
   private UserService userService;
 
   @GetMapping("/say-hello")
-  public String sayHello() {
+  public String sayHello() { // just for testing
     return "Hello User";
   }
 
@@ -34,17 +35,7 @@ public class UserController {
     User user = userService.getProfile();
     if (user == null)
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    return ResponseEntity.ok(user);
-  }
-
-  @GetMapping("/image/{filename}")
-  public ResponseEntity<byte[]> getImage(@PathVariable String filename) {
-    // byte[] result = userService.getImage(filename);
-    byte[] result = userService.getMyProfilePic();
-    if (result == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-    return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(result);
+    return ResponseEntity.ok(userService.convertToDto(user));
   }
 
   @GetMapping("/get-my-profile-pic")

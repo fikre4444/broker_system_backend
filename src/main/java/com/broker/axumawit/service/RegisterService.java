@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.broker.axumawit.domain.User;
 import com.broker.axumawit.dto.RegisterDto;
+import com.broker.axumawit.dto.UserDto;
 import com.broker.axumawit.enums.GenderEnum;
 import com.broker.axumawit.enums.RoleEnum;
 import com.broker.axumawit.repository.UserRepository;
@@ -33,6 +34,9 @@ public class RegisterService {
 
   @Autowired
   StorageService storageService;
+
+  @Autowired
+  private UserService userService;
 
   public Map<String, Object> registerUser(RegisterDto registerDto) {
     // register through normal json object
@@ -53,8 +57,9 @@ public class RegisterService {
     return Map.of("result", "success", "message", "Successfully Registered!", "registeredUser", savedUser);
   }
 
-  public User registerWithProfilePic(RegisterDto registerDto, MultipartFile file) {
+  public UserDto registerWithProfilePic(RegisterDto registerDto, MultipartFile file) {
     // register through form data and image
+    // ## TODO check for the uniqueness of either email or username not sure yet
     User user = User.builder()
         .firstName(registerDto.getFirstName())
         .lastName(registerDto.getLastName())
@@ -69,7 +74,7 @@ public class RegisterService {
     user.setProfilePicUrl(profilePicUrl);
     System.out.println(("the profile pic url is " + profilePicUrl));
     User savedUser = userRepository.save(user);
-    return savedUser;
+    return userService.convertToDto(savedUser);
   }
 
   // Just temporary need to delete later

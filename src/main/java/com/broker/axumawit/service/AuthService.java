@@ -22,7 +22,6 @@ public class AuthService {
   public String authenticateAccount(LoginDto loginDto) {
     Authentication authentication = authManager
         .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-
     // ##TODO create a proper handling for the failure case
     if (authentication.isAuthenticated())
       return jwtService.generateToken(loginDto.getUsername());
@@ -33,6 +32,7 @@ public class AuthService {
   public User getAuthenticatedUser() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && authentication.isAuthenticated()) {
+      System.out.println(authentication.getPrincipal());
       return (User) authentication.getPrincipal(); // Returns the username
     }
     return null;

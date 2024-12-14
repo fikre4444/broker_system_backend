@@ -3,6 +3,7 @@ package com.broker.axumawit.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -60,7 +61,8 @@ public class SecurityConfig {
             .allowedOrigins("*") // Allow all origins
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific HTTP methods
             .allowedHeaders("*") // Allow all headers
-            .allowCredentials(false); // Disable credentials to comply with wildcard origins
+            .allowCredentials(false) // Disable credentials to comply with wildcard origins
+            .exposedHeaders(HttpHeaders.AUTHORIZATION);
       }
     };
   }
